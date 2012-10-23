@@ -14,24 +14,25 @@ Once the AR.Drone is connected to your computer via WiFi, run
 
      ```bash
      $ roslaunch falkor_ardrone track.launch
+     ```
 
 This launches the `ardrone_driver` from `ardrone_autonomy` to communicate with the AR.Drone, as well as the nodes needed for the AR.Drone to track the target. The cascade files used for detection are in the directory `cascade/`. Edit the `cascadefile` parameter in roslaunch to change which cascade file to use.
 
-Once everything is up and running you should see a window with the front camera from the AR.Drone and a square yellow box around the detected object. The PS3 controller has the following commands:
+Once everything is up and running you should see a window with the front camera from the AR.Drone and a square yellow box around the detected object. The PS3 controller has the following 
 
-* Right gamepad
-** Triangle: Takeoff
-** Circle: Reset
-** Cross: Land
-** Square: Start/Stop following
+### Right gamepad
+* Triangle: Takeoff
+* Circle: Reset
+* Cross: Land
+* Square: Start/Stop following
 
-* Left gamepad
-** Up: Bring AR.Drone closer (increase goal size of the target)
-** Down: Move AR.Drone further away (decrease goal size of the target)
+### Left gamepad
+* Up: Bring AR.Drone closer (increase goal size of the target)
+* Down: Move AR.Drone further away (decrease goal size of the 
 
-* Joysticks (Mode 1)
-** Left Joystick: Pitch and Roll
-** Right Joystick: Altitude and Yaw
+### Joysticks (Mode 1)
+* Left Joystick: Pitch and Roll
+* Right Joystick: Altitude and Yaw
 
 ## License
 
