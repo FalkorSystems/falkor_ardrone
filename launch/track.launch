@@ -1,0 +1,17 @@
+<launch>
+  <node name="ardrone_driver" pkg="ardrone_autonomy" type="ardrone_driver" />
+
+  <node name="ardrone_tracker" pkg="falkor_ardrone" type="ardrone_tracker.py"  output="screen" >
+    <param name="cascadefile" value="$(find falkor_ardrone)/cascade/lbpcascade_falkorlogobw.xml" />
+  </node>
+
+  <node name="ardrone_follow" pkg="falkor_ardrone" type="ardrone_follow.py" output="screen" />
+
+  <node name="ardrone_control" pkg="falkor_ardrone" type="ardrone_control.py" />
+
+  <node name="joy_node" pkg="joy" type="joy_node" >
+    <param name="dev" value="/dev/input/js1" />
+  </node>
+  <node pkg="rxtools" type="rxplot" name="plot_battery" args="/ardrone/navdata/batteryPercent" />
+
+</launch>

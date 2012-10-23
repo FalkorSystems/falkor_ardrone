@@ -1,0 +1,21 @@
+<package>
+  <description brief="falkor_ardrone">
+
+     falkor_ardrone
+
+  </description>
+  <author>Sameer Parekh</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/falkor_ardrone</url>
+  <depend package="rospy" />
+  <depend package="opencv2" />
+  <depend package="tf" />
+  <depend package="joy" />
+  <depend package="image_transport" />
+  <depend package="cv_bridge" />
+  <depend package="camera_info_manager" />
+  <depend package="sensor_msgs"/>
+</package>
+
+
