@@ -7,7 +7,7 @@
   <author>Sameer Parekh</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/falkor_ardrone</url>
+  <url>https://github.com/FalkorSystems/falkor_ardrone</url>
   <depend package="rospy" />
   <depend package="opencv2" />
   <depend package="tf" />
