@@ -42,9 +42,10 @@ from ardrone_autonomy.srv import LedAnim
 
 class ArdroneFollow:
     def __init__( self ):
+        print "waiting for driver to startup"
+        rospy.wait_for_service( "ardrone/setledanimation" )
+        print "driver started"
         self.led_service = rospy.ServiceProxy( "ardrone/setledanimation", LedAnim )
-#        print "waiting for driver to startup"
-#        rospy.wait_for_service( self.led_service )
 
         self.tracker_sub = rospy.Subscriber( "ardrone_tracker/found_point",
                                              Point, self.found_point_cb )
@@ -67,7 +68,7 @@ class ArdroneFollow:
 
         self.xPid = pid.Pid( 0.020, 0.0, 0.0, self.angularZlimit )
         self.yPid = pid.Pid( 0.020, 0.0, 0.0, self.linearZlimit )
-        self.zPid = pid.Pid( 0.070, 0.0, 0.0, self.linearXlimit )
+        self.zPid = pid.Pid( 0.035, 0.0, 0.0, self.linearXlimit )
 
         self.xPid.setPointMin = 40
         self.xPid.setPointMax = 60
@@ -75,8 +76,8 @@ class ArdroneFollow:
         self.yPid.setPointMin = 40
         self.yPid.setPointMax = 60
 
-        self.zPid.setPointMin = 17
-        self.zPid.setPointMax = 23
+        self.zPid.setPointMin = 25
+        self.zPid.setPointMax = 32
 
         self.lastAnim = -1
 
@@ -147,7 +148,7 @@ class ArdroneFollow:
              self.current_cmd.angular.z == 0 ):
             self.manual_cmd = False
         else:
-            self.setLedAnim( 9 )
+            #self.setLedAnim( 9 )
             self.manual_cmd = True
 
         self.goal_vel_pub.publish( self.current_cmd )
@@ -166,7 +167,7 @@ class ArdroneFollow:
 
     def takeoff( self ):
         self.takeoff_pub.publish( Empty() )
-        self.setLedAnim( 9 )
+#        self.setLedAnim( 9 )
 
     def land( self ):
         self.land_pub.publish( Empty() )
@@ -265,7 +266,7 @@ class ArdroneFollow:
             self.setLedAnim( 8, 2 )
 
         if self.auto_cmd == False or self.manual_cmd == True:
-            self.setLedAnim( 9 )
+#            self.setLedAnim( 9 )
             return
 
         self.goal_vel_pub.publish( self.current_cmd )
