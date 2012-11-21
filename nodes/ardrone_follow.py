@@ -42,9 +42,10 @@ from ardrone_autonomy.srv import LedAnim
 
 class ArdroneFollow:
     def __init__( self ):
+        print "waiting for driver to startup"
+        rospy.wait_for_service( "ardrone/setledanimation" )
+        print "driver started"
         self.led_service = rospy.ServiceProxy( "ardrone/setledanimation", LedAnim )
-#        print "waiting for driver to startup"
-#        rospy.wait_for_service( self.led_service )
 
         self.tracker_sub = rospy.Subscriber( "ardrone_tracker/found_point",
                                              Point, self.found_point_cb )
