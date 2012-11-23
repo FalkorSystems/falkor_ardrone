@@ -90,7 +90,23 @@ class ArdroneFollow:
 
         self.bridge = CvBridge()
 
+        self.navdata_sub = rospy.Subscriber( "/ardrone/navdata", Navdata, self.navdata_cb )
+        self.navdata = None
+        self.states = { 0: 'Unknown',
+                        1: 'Init',
+                        2: 'Landed',
+                        3: 'Flying',
+                        4: 'Hovering',
+                        5: 'Test',
+                        6: 'Taking Off',
+                        7: 'Goto Fix Point',
+                        8: 'Landing',
+                        9: 'Looping' }
+
         cv2.namedWindow( 'AR.Drone Follow', cv2.cv.CV_WINDOW_NORMAL )
+
+    def navdata_cb( self, data ):
+        self.navdata = data
 
     def image_cb( self, data ):
         try:
@@ -148,7 +164,7 @@ class ArdroneFollow:
              self.current_cmd.angular.z == 0 ):
             self.manual_cmd = False
         else:
-            #self.setLedAnim( 9 )
+            self.setLedAnim( 9 )
             self.manual_cmd = True
 
         self.goal_vel_pub.publish( self.current_cmd )
@@ -167,21 +183,13 @@ class ArdroneFollow:
 
     def takeoff( self ):
         self.takeoff_pub.publish( Empty() )
-#        self.setLedAnim( 9 )
+        self.setLedAnim( 9 )
 
     def land( self ):
         self.land_pub.publish( Empty() )
 
     def reset( self ):
         self.reset_pub.publish( Empty() )
-
-    def navdata_cb( self, data ):
-        self.vx = data.vx/1e3
-        self.vy = data.vy/1e3
-        self.vz = data.vz/1e3
-        self.ax = (data.ax*9.82)
-        self.ay = (data.ay*9.82)
-        self.az = (data.az - 1)*9.82
 
     def found_point_cb( self, data ):
         self.found_point = data
@@ -193,6 +201,14 @@ class ArdroneFollow:
 
     def hover_cmd_cb( self, data ):
         self.hover()
+
+    def put_text( self, vis, text, pos ):
+        cv2.putText( vis, text,
+                     pos, cv2.FONT_HERSHEY_PLAIN, 1.0,
+                     (255, 255, 255) )
+        cv2.putText( vis, text,
+                     pos, cv2.FONT_HERSHEY_PLAIN, 1.0,
+                     ( 0, 0, 0), thickness = 2 )
 
     def draw_picture( self ):
         if self.tracker_image == None:
@@ -234,6 +250,18 @@ class ArdroneFollow:
                   line_color,
                   min( max( int( abs( self.current_cmd.linear.x ) * 255 ), 0 ), 255 ) )
 
+        if self.navdata != None:
+            self.put_text( vis, 'State: %s' % self.states[ self.navdata.state ],
+                           ( 150, 240 ) )
+            self.put_text( vis, 'Battery Percent: %4.1f' % self.navdata.batteryPercent,
+                           ( 150, 260 ) )
+
+        if self.manual_cmd:
+            self.put_text( vis, 'MANUAL CONTROL', ( 150, 280 ) )
+
+        if self.auto_cmd:
+            self.put_text( vis, 'TRACKING', ( 150, 300 ) ) 
+
         cv2.imshow( 'AR.Drone Follow', vis )
         cv2.waitKey( 1 )
 
@@ -266,7 +294,7 @@ class ArdroneFollow:
             self.setLedAnim( 8, 2 )
 
         if self.auto_cmd == False or self.manual_cmd == True:
-#            self.setLedAnim( 9 )
+            self.setLedAnim( 9 )
             return
 
         self.goal_vel_pub.publish( self.current_cmd )
