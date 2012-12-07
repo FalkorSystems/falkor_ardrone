@@ -68,7 +68,7 @@ class ArdroneFollow:
 
         self.xPid = pid.Pid( 0.020, 0.0, 0.0, self.angularZlimit )
         self.yPid = pid.Pid( 0.020, 0.0, 0.0, self.linearZlimit )
-        self.zPid = pid.Pid( 0.035, 0.0, 0.0, self.linearXlimit )
+        self.zPid = pid.Pid( 0.050, 0.0, 0.0, self.linearXlimit )
 
         self.xPid.setPointMin = 40
         self.xPid.setPointMax = 60
@@ -76,8 +76,8 @@ class ArdroneFollow:
         self.yPid.setPointMin = 40
         self.yPid.setPointMax = 60
 
-        self.zPid.setPointMin = 25
-        self.zPid.setPointMax = 32
+        self.zPid.setPointMin = 32
+        self.zPid.setPointMax = 40
 
         self.lastAnim = -1
 
