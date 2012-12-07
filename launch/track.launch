@@ -40,6 +40,5 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <node name="joy_node" pkg="joy" type="joy_node" >
     <param name="dev" value="/dev/input/js1" />
   </node>
-  <node pkg="rxtools" type="rxplot" name="plot_battery" args="/ardrone/navdata/batteryPercent" />
 
 </launch>
