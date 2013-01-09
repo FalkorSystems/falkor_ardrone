@@ -39,13 +39,16 @@ from std_msgs.msg import Empty
 from sensor_msgs.msg import Joy, Image
 from ardrone_autonomy.msg import Navdata
 from ardrone_autonomy.srv import LedAnim
+import std_srvs.srv
 
 class ArdroneFollow:
     def __init__( self ):
         print "waiting for driver to startup"
         rospy.wait_for_service( "ardrone/setledanimation" )
+        rospy.wait_for_service( "ardrone/toggleusbrecord" )
         print "driver started"
         self.led_service = rospy.ServiceProxy( "ardrone/setledanimation", LedAnim )
+        self.usb_service = rospy.ServiceProxy( "ardrone/toggleusbrecord", std_srvs.srv.Empty )
 
         self.tracker_sub = rospy.Subscriber( "ardrone_tracker/found_point",
                                              Point, self.found_point_cb )
@@ -304,10 +307,13 @@ def main():
     rospy.init_node( 'ardrone_follow' )
     af = ArdroneFollow()
 
+    af.usb_service()
+
     try:
         rospy.spin()
     except KeyboardInterrupt:
         print "Keyboard interrupted"
+        af.usb_service()
 
 if __name__ == '__main__':
     main()
