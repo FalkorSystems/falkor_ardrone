@@ -34,6 +34,9 @@ Once everything is up and running you should see a window with the front camera 
 * Left Joystick: Pitch and Roll
 * Right Joystick: Altitude and Yaw
 
+### More Buttons
+* Center PS3 Button: Toggle recording to USB stick
+
 ## License
 
 Copyright (c) 2012, Falkor Systems, Inc.

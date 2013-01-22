@@ -40,13 +40,18 @@ from sensor_msgs.msg import Joy, Image
 from ardrone_autonomy.msg import Navdata
 from ardrone_autonomy.srv import LedAnim
 from tld_msgs.msg import BoundingBox
+from ardrone_autonomy.srv import RecordEnable
+import std_srvs.srv
 
 class ArdroneFollow:
     def __init__( self ):
         print "waiting for driver to startup"
         rospy.wait_for_service( "ardrone/setledanimation" )
+        rospy.wait_for_service( "ardrone/setrecord" )
         print "driver started"
         self.led_service = rospy.ServiceProxy( "ardrone/setledanimation", LedAnim )
+        self.record_service = rospy.ServiceProxy( "ardrone/setrecord", RecordEnable )
+        self.recording = False
 
         self.tracker_sub = rospy.Subscriber( "tld_tracked_object",
                                              BoundingBox, self.bounding_box_cb )
@@ -107,7 +112,14 @@ class ArdroneFollow:
                         8: 'Landing',
                         9: 'Looping' }
 
+
+
         cv2.namedWindow( 'AR.Drone Follow', cv2.cv.CV_WINDOW_NORMAL )
+
+    def toggle_record( self ):
+        self.recording = not self.recording
+        
+        self.record_service( enable = self.recording )
 
     def navdata_cb( self, data ):
         self.navdata = data
@@ -138,6 +150,9 @@ class ArdroneFollow:
 
         if data.buttons[14] == 1 and self.last_buttons[14] == 0:
             self.land()
+
+        if data.buttons[16] == 1 and self.last_buttons[16] == 0:
+            self.toggle_record()
 
         if data.buttons[13] == 1 and self.last_buttons[13] == 0:
             self.reset()
@@ -285,6 +300,9 @@ class ArdroneFollow:
         if self.auto_cmd:
             self.put_text( vis, 'TRACKING', ( 150, 300 ) ) 
 
+        if self.recording:
+            self.put_text( vis, 'RECORDING', ( 150, 320 ) )
+
         cv2.imshow( 'AR.Drone Follow', vis )
         cv2.waitKey( 1 )
 
@@ -331,6 +349,7 @@ def main():
         rospy.spin()
     except KeyboardInterrupt:
         print "Keyboard interrupted"
+        af.usb_service()
 
 if __name__ == '__main__':
     main()
