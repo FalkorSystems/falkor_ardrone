@@ -83,7 +83,7 @@ class ArdroneFollow:
         self.lastAnim = -1
 
         self.found_point = Point( 0, 0, -1 )
-        self.bounding_box = BoundingBox()
+        self.found_bounding_box = BoundingBox()
         self.image_size = (1,1)
         self.image_area = 1
         self.old_cmd = self.current_cmd = Twist()
@@ -252,15 +252,6 @@ class ArdroneFollow:
                        ( cx + side_max_half, cy + side_max_half ),
                        ( 255, 255, 0 ) )
 
-        # Draw detected box
-        if self.found_point.z != -1.0:
-            confidence_value = int(255 * self.bounding_box.confidence)
-            confidence_color = (confidence_value)*3
-            cv2.rectangle( vis,
-                           ( self.bounding_box.x, self.bounding_box.y ),
-                           ( self.bounding_box.x + self.bounding_box.width,
-                             self.bounding_box.y + self.bounding_box.height ),
-                           confidence_color, 3, 8, 0 )
 
         if self.current_cmd.linear.x > 0:
             line_color = ( 0, 255, 0 )
@@ -271,6 +262,16 @@ class ArdroneFollow:
                                        int( ySize/2 - self.current_cmd.linear.z * 180  ) ),
                   line_color,
                   min( max( int( abs( self.current_cmd.linear.x ) * 255 ), 0 ), 255 ) )
+
+        # Draw detected box
+        if self.found_point.z != -1.0:
+            confidence_value = int(255 * self.found_bounding_box.confidence)
+            confidence_color = (confidence_value,confidence_value,confidence_value)
+            cv2.rectangle( vis,
+                           ( self.found_bounding_box.x, self.found_bounding_box.y ),
+                           ( self.found_bounding_box.x + self.found_bounding_box.width,
+                             self.found_bounding_box.y + self.found_bounding_box.height ),
+                           confidence_color, 3, 8, 0 )
 
         if self.navdata != None:
             self.put_text( vis, 'State: %s' % self.states[ self.navdata.state ],

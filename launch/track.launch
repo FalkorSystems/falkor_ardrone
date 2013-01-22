@@ -40,7 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <param name="autoFaceDetection" value="false" type="bool"/>
     <param name="modelImportFile" value="$(find falkor_ardrone)/cascade/falkor_tld_model" type="string"/>
     <param name="exportModelAfterRun" value="true" type="bool"/>
-    <param name="modelExportFile" value="$(find falkor_ardrone)/cascade/falkor_tld_model_new)" type="string"/>
+    <param name="modelExportFile" value="$(find falkor_ardrone)/cascade/falkor_tld_model_new" type="string"/>
   </node>
 
   <node name="ros_tld_gui_node" pkg="tld_gui" type="ros_tld_gui_node" >
@@ -49,9 +49,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <remap from="fps_tracker" to="tld_fps"/>
   </node>
 
-<!--  <node name="ardrone_follow" pkg="falkor_ardrone" type="ardrone_follow.py" output="screen" /> -->
+  <node name="ardrone_follow" pkg="falkor_ardrone" type="ardrone_follow.py" output="screen" />
 
-<!--  <node name="ardrone_control" pkg="falkor_ardrone" type="ardrone_control.py" /> -->
+  <node name="ardrone_control" pkg="falkor_ardrone" type="ardrone_control.py" />
 
   <node name="joy_node" pkg="joy" type="joy_node" >
     <param name="dev" value="/dev/input/js1" />
