@@ -31,13 +31,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <param name="realtime_navdata" value="true" />
   </node>
 
-  <node name="ardrone_tracker" pkg="falkor_ardrone" type="ardrone_tracker.py"  output="screen" >
-    <param name="cascadefile" value="$(find falkor_ardrone)/cascade/lbpcascade_falkorlogobw.xml" />
+  <node name="ros_tld_tracker_node" pkg="tld_tracker" type="ros_tld_tracker_node" >
+    <remap from="image_rgb" to="/ardrone/front/image_raw"/>
+    <remap from="bounding_box" to="tld_gui_bb"/>
+    <remap from="cmds" to="tld_gui_cmds"/>
+    <param name="showOutput" value="true" type="bool"/>
+    <param name="loadModel" value="false" type="bool"/>
+    <param name="autoFaceDetection" value="false" type="bool"/>
+    <param name="modelImportFile" value="$(find falkor_ardrone)/cascade/falkor_tld_model" type="string"/>
+    <param name="exportModelAfterRun" value="true" type="bool"/>
+    <param name="modelExportFile" value="$(find falkor_ardrone)/cascade/falkor_tld_model_new)" type="string"/>
   </node>
 
-  <node name="ardrone_follow" pkg="falkor_ardrone" type="ardrone_follow.py" output="screen" />
+  <node name="ros_tld_gui_node" pkg="tld_gui" type="ros_tld_gui_node" >
+    <remap from="image_rgb" to="/ardrone/front/image_raw"/>
+    <remap from="tracked_object" to="tld_tracked_object"/>
+    <remap from="fps_tracker" to="tld_fps"/>
+  </node>
 
-  <node name="ardrone_control" pkg="falkor_ardrone" type="ardrone_control.py" />
+<!--  <node name="ardrone_follow" pkg="falkor_ardrone" type="ardrone_follow.py" output="screen" /> -->
+
+<!--  <node name="ardrone_control" pkg="falkor_ardrone" type="ardrone_control.py" /> -->
 
   <node name="joy_node" pkg="joy" type="joy_node" >
     <param name="dev" value="/dev/input/js1" />

@@ -39,6 +39,7 @@ from std_msgs.msg import Empty
 from sensor_msgs.msg import Joy, Image
 from ardrone_autonomy.msg import Navdata
 from ardrone_autonomy.srv import LedAnim
+from tld_msgs.msg import BoundingBox
 
 class ArdroneFollow:
     def __init__( self ):
@@ -47,12 +48,12 @@ class ArdroneFollow:
         print "driver started"
         self.led_service = rospy.ServiceProxy( "ardrone/setledanimation", LedAnim )
 
-        self.tracker_sub = rospy.Subscriber( "ardrone_tracker/found_point",
-                                             Point, self.found_point_cb )
+        self.tracker_sub = rospy.Subscriber( "tld_tracked_object",
+                                             BoundingBox, self.bounding_box_cb )
         self.goal_vel_pub = rospy.Publisher( "goal_vel", Twist )
         self.found_time = None
 
-        self.tracker_img_sub = rospy.Subscriber( "ardrone_tracker/image",
+        self.tracker_img_sub = rospy.Subscriber( "ardrone/front/image_raw",
                                                  Image, self.image_cb )
         self.tracker_image = None
 
@@ -82,6 +83,9 @@ class ArdroneFollow:
         self.lastAnim = -1
 
         self.found_point = Point( 0, 0, -1 )
+        self.bounding_box = BoundingBox()
+        self.image_size = (1,1)
+        self.image_area = 1
         self.old_cmd = self.current_cmd = Twist()
 
         self.joy_sub = rospy.Subscriber( "joy", Joy, self.callback_joy )
@@ -113,8 +117,10 @@ class ArdroneFollow:
             cv_image = self.bridge.imgmsg_to_cv( data, "passthrough" )
         except CvBridgeError, e:
             print e
-        
+
         self.tracker_image = np.asarray( cv_image )
+        self.image_size = self.tracker_image.shape
+        self.image_area = self.image_size[0]*self.image_size[1]
 
     def increase_z_setpt( self ):
         self.zPid.setPointMin *= 1.01
@@ -191,9 +197,15 @@ class ArdroneFollow:
     def reset( self ):
         self.reset_pub.publish( Empty() )
 
-    def found_point_cb( self, data ):
-        self.found_point = data
-        self.found_time = rospy.Time.now()
+    def bounding_box_cb( self, data ):
+        self.found_bounding_box = data
+        if data.confidence < 0.1:
+            self.found_point = Point(0,0,-1.0)
+        else:
+            self.found_point = Point( (data.x+data.width/2 )*100.0/self.image_size[1],
+                                      (data.y+data.height/2)*100.0/self.image_size[0],
+                                      math.sqrt(data.width*data.height/self.image_area)*100 )
+            self.found_time = rospy.Time.now()
 
     def hover( self ):
         hoverCmd = Twist()
@@ -239,6 +251,16 @@ class ArdroneFollow:
         cv2.rectangle( vis, ( cx - side_max_half, cy - side_max_half ),
                        ( cx + side_max_half, cy + side_max_half ),
                        ( 255, 255, 0 ) )
+
+        # Draw detected box
+        if self.found_point.z != -1.0:
+            confidence_value = int(255 * self.bounding_box.confidence)
+            confidence_color = (confidence_value)*3
+            cv2.rectangle( vis,
+                           ( self.bounding_box.x, self.bounding_box.y ),
+                           ( self.bounding_box.x + self.bounding_box.width,
+                             self.bounding_box.y + self.bounding_box.height ),
+                           confidence_color, 3, 8, 0 )
 
         if self.current_cmd.linear.x > 0:
             line_color = ( 0, 255, 0 )
