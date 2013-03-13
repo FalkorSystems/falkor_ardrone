@@ -76,6 +76,9 @@ class ArdroneFollow:
         self.yPid = pid.Pid( 0.020, 0.0, 0.0, self.linearZlimit )
         self.zPid = pid.Pid( 0.050, 0.0, 0.0, self.linearXlimit )
 
+        # alpha for the ema filter on the found point
+        self.alpha = 0.5
+
         self.xPid.setPointMin = 40
         self.xPid.setPointMax = 60
 
@@ -208,7 +211,14 @@ class ArdroneFollow:
         self.reset_pub.publish( Empty() )
 
     def found_point_cb( self, data ):
-        self.found_point = data
+        if data.z != -1.0:
+            if self.found_point.z == -1.0:
+                self.found_point = data
+            else:
+                # update the ema found_point, if we didn't just re-acquire
+                self.found_point.x = self.found_point.x * self.alpha + data.x * ( 1.0 - self.alpha )
+                self.found_point.y = self.found_point.y * self.alpha + data.y * ( 1.0 - self.alpha )
+                self.found_point.z = self.found_point.z * self.alpha + data.z * ( 1.0 - self.alpha )
         self.found_time = rospy.Time.now()
 
     def hover( self ):
