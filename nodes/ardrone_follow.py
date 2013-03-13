@@ -71,7 +71,8 @@ class ArdroneFollow:
         self.linearXlimit = 1.0
         self.linearZlimit = 2.0
 
-        self.xPid = pid.Pid( 0.020, 0.0, 0.0, self.angularZlimit )
+        # Increasing the P term for yaw
+        self.xPid = pid.Pid( 0.080, 0.0, 0.0, self.angularZlimit )
         self.yPid = pid.Pid( 0.020, 0.0, 0.0, self.linearZlimit )
         self.zPid = pid.Pid( 0.050, 0.0, 0.0, self.linearXlimit )
 
