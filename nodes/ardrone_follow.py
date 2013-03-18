@@ -73,14 +73,14 @@ class ArdroneFollow:
 
         # Increasing the P term for yaw
         self.xPid = pid.Pid( 0.080, 0.0, 0.0, self.angularZlimit )
-        self.yPid = pid.Pid( 0.020, 0.0, 0.0, self.linearZlimit )
+        self.yPid = pid.Pid( 0.050, 0.0, 0.0, self.linearZlimit )
         self.zPid = pid.Pid( 0.050, 0.0, 0.0, self.linearXlimit )
 
         # alpha for the ema filter on the found point
         self.alpha = 0.5
 
-        self.xPid.setPointMin = 40
-        self.xPid.setPointMax = 60
+        self.xPid.setPointMin = 45
+        self.xPid.setPointMax = 55
 
         self.yPid.setPointMin = 40
         self.yPid.setPointMax = 60
