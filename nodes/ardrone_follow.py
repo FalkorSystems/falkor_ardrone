@@ -219,6 +219,9 @@ class ArdroneFollow:
                 self.found_point.x = self.found_point.x * self.alpha + data.x * ( 1.0 - self.alpha )
                 self.found_point.y = self.found_point.y * self.alpha + data.y * ( 1.0 - self.alpha )
                 self.found_point.z = self.found_point.z * self.alpha + data.z * ( 1.0 - self.alpha )
+        else:
+            self.found_point = data
+
         self.found_time = rospy.Time.now()
 
     def hover( self ):
