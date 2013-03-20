@@ -6,6 +6,7 @@
 
 ### Updates
 
+- *March 20, 2013*: Release related to company launch/Wired article
 - *October 23, 2012*: Create this seperate package
 
 ## Usage
