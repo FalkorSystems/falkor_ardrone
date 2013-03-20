@@ -39,13 +39,18 @@ from std_msgs.msg import Empty
 from sensor_msgs.msg import Joy, Image
 from ardrone_autonomy.msg import Navdata
 from ardrone_autonomy.srv import LedAnim
+from ardrone_autonomy.srv import RecordEnable
+import std_srvs.srv
 
 class ArdroneFollow:
     def __init__( self ):
         print "waiting for driver to startup"
         rospy.wait_for_service( "ardrone/setledanimation" )
+        rospy.wait_for_service( "ardrone/setrecord" )
         print "driver started"
         self.led_service = rospy.ServiceProxy( "ardrone/setledanimation", LedAnim )
+        self.record_service = rospy.ServiceProxy( "ardrone/setrecord", RecordEnable )
+        self.recording = False
 
         self.tracker_sub = rospy.Subscriber( "ardrone_tracker/found_point",
                                              Point, self.found_point_cb )
@@ -66,12 +71,16 @@ class ArdroneFollow:
         self.linearXlimit = 1.0
         self.linearZlimit = 2.0
 
-        self.xPid = pid.Pid( 0.020, 0.0, 0.0, self.angularZlimit )
-        self.yPid = pid.Pid( 0.020, 0.0, 0.0, self.linearZlimit )
+        # Increasing the P term for yaw
+        self.xPid = pid.Pid( 0.080, 0.0, 0.0, self.angularZlimit )
+        self.yPid = pid.Pid( 0.050, 0.0, 0.0, self.linearZlimit )
         self.zPid = pid.Pid( 0.050, 0.0, 0.0, self.linearXlimit )
 
-        self.xPid.setPointMin = 40
-        self.xPid.setPointMax = 60
+        # alpha for the ema filter on the found point
+        self.alpha = 0.5
+
+        self.xPid.setPointMin = 45
+        self.xPid.setPointMax = 55
 
         self.yPid.setPointMin = 40
         self.yPid.setPointMax = 60
@@ -103,7 +112,14 @@ class ArdroneFollow:
                         8: 'Landing',
                         9: 'Looping' }
 
+
+
         cv2.namedWindow( 'AR.Drone Follow', cv2.cv.CV_WINDOW_NORMAL )
+
+    def toggle_record( self ):
+        self.recording = not self.recording
+        
+        self.record_service( enable = self.recording )
 
     def navdata_cb( self, data ):
         self.navdata = data
@@ -132,6 +148,9 @@ class ArdroneFollow:
 
         if data.buttons[14] == 1 and self.last_buttons[14] == 0:
             self.land()
+
+        if data.buttons[16] == 1 and self.last_buttons[16] == 0:
+            self.toggle_record()
 
         if data.buttons[13] == 1 and self.last_buttons[13] == 0:
             self.reset()
@@ -192,7 +211,17 @@ class ArdroneFollow:
         self.reset_pub.publish( Empty() )
 
     def found_point_cb( self, data ):
-        self.found_point = data
+        if data.z != -1.0:
+            if self.found_point.z == -1.0:
+                self.found_point = data
+            else:
+                # update the ema found_point, if we didn't just re-acquire
+                self.found_point.x = self.found_point.x * self.alpha + data.x * ( 1.0 - self.alpha )
+                self.found_point.y = self.found_point.y * self.alpha + data.y * ( 1.0 - self.alpha )
+                self.found_point.z = self.found_point.z * self.alpha + data.z * ( 1.0 - self.alpha )
+        else:
+            self.found_point = data
+
         self.found_time = rospy.Time.now()
 
     def hover( self ):
@@ -262,6 +291,9 @@ class ArdroneFollow:
         if self.auto_cmd:
             self.put_text( vis, 'TRACKING', ( 150, 300 ) ) 
 
+        if self.recording:
+            self.put_text( vis, 'RECORDING', ( 150, 320 ) )
+
         cv2.imshow( 'AR.Drone Follow', vis )
         cv2.waitKey( 1 )
 
@@ -308,6 +340,7 @@ def main():
         rospy.spin()
     except KeyboardInterrupt:
         print "Keyboard interrupted"
+        af.usb_service()
 
 if __name__ == '__main__':
     main()

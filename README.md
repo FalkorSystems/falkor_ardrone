@@ -6,6 +6,7 @@
 
 ### Updates
 
+- *March 20, 2013*: Release related to company launch/Wired article
 - *October 23, 2012*: Create this seperate package
 
 ## Usage
@@ -33,6 +34,9 @@ Once everything is up and running you should see a window with the front camera 
 ### Joysticks (Mode 1)
 * Left Joystick: Pitch and Roll
 * Right Joystick: Altitude and Yaw
+
+### More Buttons
+* Center PS3 Button: Toggle recording to USB stick
 
 ## License
 

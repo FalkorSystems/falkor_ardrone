@@ -27,7 +27,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -->
 
-  <node name="ardrone_driver" pkg="ardrone_autonomy" type="ardrone_driver" />
+  <node name="ardrone_driver" pkg="ardrone_autonomy" type="ardrone_driver" >
+<!--    <param name="realtime_navdata" value="true" /> -->
+  </node>
 
   <node name="ardrone_tracker" pkg="falkor_ardrone" type="ardrone_tracker.py"  output="screen" >
     <param name="cascadefile" value="$(find falkor_ardrone)/cascade/lbpcascade_falkorlogobw.xml" />
